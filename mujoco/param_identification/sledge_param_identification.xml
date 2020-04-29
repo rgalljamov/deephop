@@ -1,0 +1,64 @@
+<mujoco model='guro-v1'>
+  <compiler inertiafromgeom='auto' angle='degree'/>
+  <option timestep='0.001' >
+  </option>
+
+  	<visual>
+  		<global fovy='90'/>
+	    <quality shadowsize='4096'/>
+	    <rgba force='1 0 0 1' joint='1 0 0 1'/>
+	    <scale framelength='0.5' framewidth='0.005' forcewidth='0.0075' contactwidth='0.1' contactheight='0.01'/>
+  	</visual>
+
+	 <default>
+        <geom  condim="1" pos='0 0 0'/>
+		<joint limited="true"/>
+	    <motor ctrllimited='true'/>
+	    <mesh scale='0.001 0.001 0.001'/>
+	    <default class='axis'>
+	    	<geom type='box' mass='0.001'/>
+	    </default>
+	</default>
+
+
+	<asset>
+	    <texture type='skybox' builtin='gradient' width='128' height='128' rgb1='0.4 0.6 0.8' rgb2='0 0 0'/>
+	    <texture name='plane' type='2d' builtin='checker' rgb1='0.2 0.2 0.2' rgb2='0.3 0.3 0.3' width='512' height='512'/>
+	    <material name='plane' reflectance='0.0' texture='plane' texrepeat='2 2' texuniform='true'/>
+	</asset>
+
+  <worldbody>
+
+	<light directional="true" cutoff="4" exponent="20" diffuse="1 1 1" specular="0 0 0" pos="0 .3 2.5" dir="0 -.3 -2.5 "/>
+	<geom name='floor' pos='0 0 0' size='1 1 .125' type='plane' material='plane' condim='3' conaffinity="15" 
+		solref='0.10975158338754316 0' solimp='25.293217747579927 0.0 0.3611646095232781'/>
+	<!-- best values so far: SCALED Inputs: [0.004, 0, 0, 7.084220697357011, 0.005414183694608321] Cost: -353.0 
+		 BEST BEFORE were: solref='0.003 0.0001' solimp='0.5 0.65 0.00001'-->
+
+  	<body name='linear_guide'  pos='0.1 0.1 0'>
+ 		<geom type='box' size='0.01 0.01 0.4' pos='0 0 0.4'/>
+	  
+	  	<body name='falling_apple' pos='0.051 0 0.04'>
+	  		<joint type="slide" axis="0 0 1" limited='false' damping='0.1736' frictionloss='1.618'/>
+	  		<geom type='sphere' size="0.04" pos='0 0 0' condim='3'/>
+	  		<inertial mass='0.486' pos='0 0 0' diaginertia='0.001 0.001 0.001'/>
+	  	</body>
+	</body>
+
+	<!--
+	<body name='force_plate' pos='0.151 0.1 0.060136'> 
+		<geom type='box' size='0.6 0.5 0.0288' rgba='0 0.48 0.72 1'/> 
+		<inertial mass='8.6' pos='0 0 0' diaginertia='0.17976 0.258594 0.437166'/>
+		<joint name='forceplate_spring' type='slide' axis='0 0 1' limited='false' stiffness='181975.97' springref='0.000450688' damping='779.95' frictionloss='96.048'/>
+	</body>
+	-->
+
+  </worldbody>
+
+  <!--
+  <contact>
+    	<exclude body1='linear_guide' body2='force_plate'/>
+  </contact>
+  -->
+
+</mujoco>

@@ -1,0 +1,126 @@
+<mujoco model='guro-v1'>
+  <compiler inertiafromgeom='auto' angle='degree' meshdir='STL-Files'/>
+  <option timestep='0.0005' iterations='50'  gravity='0 0 -9.81'>
+  	<flag energy='enable'/>
+  </option>
+
+  	<visual>
+  		<global fovy='80'/>
+	    <quality shadowsize='4098'/>
+	    <map znear='0.2'/>
+	    <scale framelength='0.5' framewidth='0.005' forcewidth='0.0075' contactwidth='0.1' contactheight='0.01'/>
+  	</visual>
+
+	 <default>
+        <geom  condim="1" conaffinity="1" contype="1" pos='0 0 0' margin="0.001"  type='mesh'/>
+        <!-- from cassie: contype='0' conaffinity='0' condim='1' solref='0.005 1' -->
+        <!-- and for the floor they used: condim='3' conaffinity='15' -->
+		<joint limited="true" damping="0.05" margin="0.01"/>
+	    <motor gear='1' forcelimited='true' ctrllimited='true'/>
+	    <mesh scale='0.001 0.001 0.001'/>
+	    <default class='axis'>
+	    	<geom type='box' mass='0.001'/>
+	    </default>
+	</default>
+
+
+	<asset>
+	    <texture type='skybox' builtin='gradient' width='128' height='128' rgb1='0.4 0.6 0.8' rgb2='0.6 0.6 0.6'/>
+	    <texture name='plane' type='2d' builtin='checker' rgb1='0.75 0.75 0.75' rgb2='0.6 0.6 0.6' width='512' height='512'/>
+	    <material name='plane' reflectance='0.0' texture='plane' texrepeat='1 1' texuniform='true'/>
+	    <material name='plane_small' reflectance='0.0' texture='plane' texrepeat='4 4' texuniform='true'/>
+	    <material name='mat_linear_guide' reflectance='0.1' rgba='0.5 0.5 0.5 0.35'/>
+	    <material name='mat_sledge' reflectance='0.1' rgba='.96 0.26 0.21 1'/>
+	    <material name='mat_thigh' reflectance='0.1' rgba='0.22 .56 0.34 1'/>
+	    <material name='mat_shank' reflectance='0.1' rgba='0.27 0.54 1 1'/>
+	    <material name='mat_pulley' reflectance='0.1' rgba='1 0.6 0 1'/>
+	    <material name='mat_ground_plate' reflectance='0' rgba='0.25 0.25 0.25 1'/>
+
+	    <mesh name='linear_guide_rail' file='linear_guide_rail.stl'/>
+	    <mesh name='hip_motor' file='hip_motor_20k_faces.stl'/>
+	    <mesh name='thigh' file='thigh_asm_20k_faces.stl'/>
+	    <mesh name='shank' file='shank_asm_20k_faces.stl'/>
+	    <mesh name='hip_pulley' file='motor_rotor_pully_asm_8k_faces.stl'/>
+	</asset>
+
+  <worldbody>
+
+	<light directional="true" cutoff="4" exponent="20" diffuse="1 1 1" specular="0 0 0" pos="0 .3 2.5" dir="0 -.3 -2.5 "/>
+	<geom name='floor' pos='0 0 0' size='1 1 .125' type='plane' material='plane' 
+		  condim='3' friction='1 0.1 0.1' solimp="0.98 0.99 0.001" solref="0.02 10"/>
+		  <!-- default contact params: solimp="0.9 0.95 0.001" solref="0.02 1" -->
+		  <!-- hardest ground with good damping: solimp="1 1 0.001" solref="0.02 10" -->
+		  <!-- good GRFs: solimp='1e-6 1e-6 1e-3' solref='7.5e-4 5e1' found on mujoco forum --> 
+		  <!-- Best Ground Contact Model Params according to the Identification (18.08.18): 
+		       solimp="25.293217747579927 0.0 0.3611646095232781" solref="0.10975158338754316 0.0" -->
+		  <!-- Best values from the first identification:
+		       solref='0.004 0' solimp='0 7.0842207 0.00541418'-->
+		  <!-- friction='2.5 0.005 0.0001'  --> 
+
+ 	<body name='assembly_with_guide' pos='0 0 0'>
+		<geom mesh='linear_guide_rail' euler='0 0 90' pos='0 0 0.1' material='mat_linear_guide'/>
+		<geom type='box' pos='0 0 0.95' size='0.02 0.02 0.02' material='mat_linear_guide'/>
+
+		<body name='hip_motor_on_sledge' pos='-0.0163832 5.2724334e-3 0.65'>
+			<geom mesh='hip_motor' condim='3' material='mat_sledge'/>
+			<inertial mass='0.806'  pos='-1.6286e-2 -0.5906e-2 -0.0215e-2'  fullinertia='644.5e-6 807e-6 802.5e-6 -9.2e-6 0.77e-6 -0.097e-6'/>
+			<joint name='vertical_hip_slide' type='slide' axis='0 0 1' ref='0.65' limited='false' 
+				damping='0.3181948092133513' frictionloss='1.4998656984458671'/>
+			<!-- damping='0.3181948092133513' frictionloss='1.4998656984458671' --> 
+			
+			<body name='thigh' pos='-135.887e-3 -6.439e-3 0'>
+				<joint name='hip_joint' type='hinge' pos='0 0 0' axis='1 0 0' limited='false' ref='-4'/>
+				<geom  mesh='thigh' material='mat_thigh'/>
+				<inertial mass='0.979'  pos='4.8623e-2 -0.2495e-2 -3.6737e-2'  fullinertia='7770e-6 7970e-6 1219e-6 -54.2e-6 -796e-6 -462e-6'/>
+
+					<body name='hip_pulley' pos='-6.427e-3 0 0'>
+						<joint name='hip_pulley_joint' type='hinge' axis='1 0 0' limited='false' ref='0'/>
+						<inertial mass='0.364'  pos='2.7943e-2 0 0.0003e-2'  fullinertia='505.8e-6 301e-6 301e-6 0 0.024e-6 0'/>
+						<geom mesh='hip_pulley' material='mat_pulley'/>
+					</body>
+			
+
+					<body name='shank' pos='5.573e-3 -18.370e-3 -269.374e-3'>
+						<joint name='knee_joint' type='hinge' pos='0 0 0' axis='1 0 0' ref='164' range='60 168'
+						 solimplimit='0.99 0.99 0.01' solreflimit="0.01 1"/>
+						<geom  mesh='shank' material='mat_shank'/>
+						<inertial mass='0.180'  pos='1.1459e-2 -1.2771e-2 -6.3122e-2'  fullinertia='1786e-6 1587e-6 259e-6 24.4e-6 89.9e-6 -530e-6'/>
+						
+					</body>
+			</body>
+
+		</body>
+
+  	</body>
+
+  	<body name='ground_plane' pos='-0.12 0 -0.25'>
+				<geom type='box' pos='0 0 0' size='0.1 0.25 0.002' material='mat_ground_plate' 
+		  		condim='3' friction='1 0.1 0.1' solimp="0.98 0.99 0.001" solref="0.02 10"/>
+	</body>
+	
+
+  </worldbody>
+
+  	<actuator>
+	    <motor joint='hip_joint' forcerange='-5 5' ctrlrange='-5 5'/> 
+  		<motor joint='hip_pulley_joint' ctrlrange='-10 10' forcerange='-10 10'/>
+  		<motor joint='knee_joint' ctrlrange='-25 25' forcerange='-25 25'/>
+    </actuator>
+
+    <!--
+    <sensor>
+    	<touch site='ground_contact'/>
+    </sensor>
+	-->
+
+    <contact>
+    	<exclude body1='assembly_with_guide' body2='hip_motor_on_sledge'/>
+    </contact>
+
+   <!--
+   <equality>
+    <connect body1='foot_sledge' body2='shank'  anchor='0.04 0 0'/>
+   </equality>
+	-->
+
+</mujoco>

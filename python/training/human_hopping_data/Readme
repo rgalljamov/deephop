@@ -1,0 +1,22 @@
+
+Experiment and Data description:
+----------------------------------
+
+It's one subject data. Data structure:
+
+e.g. posComAllAll, cell 1*6 denotes 6 types perturbation (midstance 25, 50, 75mm and touchdown 25, 50, 75mm ground drop).
+Each cell has nTrial*nHop cells.
+
+In this data I only save 7 hops (3 hops before perturbation, 1perturbation hop, and 3 hops after perturbation).
+
+Data is collected with 240 Hz and contains only stance phase trajectories.
+
+
+Data structure:
+----------------
+
+posComAllAll: 1 x 6 perturbations
+	- [0,0]: one perturbation: nTrial x nHop cells (8x7)
+		- [0, 1:4]: first trial and there the first 3 hops (unperturbed) (3,): 3 hops * xyz trajectories
+			- [0]: first hop with 3 coordinate trajectories, each 52 samples long
+				-[2,:]: 52 z-coordinate com positions
